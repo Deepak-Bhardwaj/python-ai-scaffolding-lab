@@ -150,6 +150,11 @@ def tab_tools() -> None:
         return
     prompt = st.text_input("Prompt", "What's the weather in London?", key="tool_prompt")
     bad = st.checkbox("Force malformed arguments (see error handling)", key="tool_bad")
+    if bad:
+        st.caption(
+            "Simulated deterministically via the **mock** provider — live models won't emit "
+            "invalid JSON on demand, so the demo routes through mock to always show the caught error."
+        )
     if st.button("Call tool", key="tool_run"):
         resp = _post("/tools/call", {"tool_name": tool, "prompt": prompt, "force_bad_args": bad})
         body = resp.json()

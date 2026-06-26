@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from api.config import Settings
 from api.errors import ProviderError
-from api.models import ChatRequest, ProviderResult, Usage
+from api.models import ChatRequest, ProviderResult, ToolCallRequest, Usage
 
 
 class OpenAIProvider:
@@ -34,11 +34,11 @@ class OpenAIProvider:
             ),
         )
 
-    async def call_tool(self, request: ChatRequest, tools: list[dict]) -> dict:
+    async def call_tool(self, request: ToolCallRequest, tools: list[dict]) -> dict:
         schema = tools[0]
         resp = await self._client.chat.completions.create(
             model=self._model,
-            messages=[{"role": m.role, "content": m.content} for m in request.messages],
+            messages=[{"role": "user", "content": request.prompt}],
             tools=[{
                 "type": "function",
                 "function": {"name": schema["name"], "parameters": schema["parameters"]},

@@ -30,3 +30,12 @@ def test_make_none_defaults_to_mock():
 def test_make_live_provider_without_key_raises():
     with pytest.raises(ProviderError):
         make_provider("openai", _offline_settings())
+
+
+def test_bad_args_forces_mock_regardless_of_provider():
+    # "Force malformed arguments" is a deterministic teaching simulation — only the
+    # mock can emit invalid JSON on purpose. It must work no matter the default
+    # provider (and must NOT require a live key/SDK).
+    p = make_provider("openai", _offline_settings(), bad_args=True)
+    assert isinstance(p, MockProvider)
+    assert p.bad_args is True

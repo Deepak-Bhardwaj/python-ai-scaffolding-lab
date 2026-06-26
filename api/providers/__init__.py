@@ -29,7 +29,11 @@ def make_provider(
     fail_first_k: int = 0,
     bad_args: bool = False,
 ) -> LLMProvider:
-    if name in (None, "mock"):
+    # "Force malformed arguments" is a deterministic teaching simulation: no live
+    # provider can be asked to emit invalid JSON on purpose, so route it through the
+    # mock regardless of which provider is the default. Keeps the tickbox meaningful
+    # even after DEFAULT_PROVIDER is switched to a live provider.
+    if name in (None, "mock") or bad_args:
         return MockProvider(fail_first_k=fail_first_k, bad_args=bad_args)
 
     avail = _live_availability(settings)

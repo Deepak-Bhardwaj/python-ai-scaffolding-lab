@@ -4,7 +4,7 @@ import json
 
 from api.config import Settings
 from api.errors import ProviderError
-from api.models import ChatRequest, ProviderResult, Usage
+from api.models import ChatRequest, ProviderResult, ToolCallRequest, Usage
 
 
 class AnthropicProvider:
@@ -42,14 +42,13 @@ class AnthropicProvider:
             ),
         )
 
-    async def call_tool(self, request: ChatRequest, tools: list[dict]) -> dict:
+    async def call_tool(self, request: ToolCallRequest, tools: list[dict]) -> dict:
         schema = tools[0]
-        system, msgs = self._split(request)
         resp = await self._client.messages.create(
             model=self._model,
-            system=system or "",
-            messages=msgs,
-            max_tokens=request.max_tokens,
+            system="",
+            messages=[{"role": "user", "content": request.prompt}],
+            max_tokens=1024,
             tools=[{
                 "name": schema["name"],
                 "description": f"Call {schema['name']}",
